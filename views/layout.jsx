@@ -43,7 +43,7 @@ var Layout = React.createClass({
       </head>
 
       <body>
-      <h2>React组件渲染方式对比</h2>
+      <h2>React组件渲染方式对比&nbsp;&nbsp;<a href="https://git.hz.netease.com/zlchen/express-react" target="_blank">git repo</a></h2>
       <Mode {...this.props} />
 
       <h3>

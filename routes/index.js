@@ -21,16 +21,18 @@ var data = [
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('layout', {
-    data : {
+    // 服务器端: 以下的属性均可在jsx通过this.props.xxx获取
+    // 浏览器端端: data和config均可在jsx通过this.props.xxx获取
+    data : { // 业务逻辑数据
       title: '首页',
       items :data
     },
-    config : {
-      mode : req.query.mode || 'server',
-      entry : 'index'
+    config : { // 配置
+      mode : req.query.mode || 'server', // 渲染方式
+      entry : 'index' // 页面jsx组件的名称,在pages下
     },
-    req : req,
-    res : res
+    req : req, // req对象
+    res : res // res对象
   });
 });
 
