@@ -1,14 +1,14 @@
+最近流行前后端的universal/isomorphic，包括ui渲染、router、flux/redux，都可以随心所欲使用同一套代码，想放在浏览器端运行也行，想放到服务器端运行更没问题，听起来很cool。
 
-## React组件渲染方式对比Demo
+最近在做一个新项目，就想到可以尝试使用universal的概念，先从ui渲染尝试，几周的开发时间，不停的摸索和踩坑，实现了可以很方便的切换各种渲染方式的机制，本文用一个简单的demo介绍这个机制实现的三种渲染方式。
 
-最近流行前后端的universal(isomorphic)，包括ui渲染、router、flux/redux，都可以随心所欲使用同一套代码，想放在浏览器端运行也行，想放到服务器端运行更没问题，听起来很cool。
+[本文demo的源码](https://git.hz.netease.com/zlchen/express-react)
 
-最近在做一个新项目，就想到可以尝试使用universal的概念，先从ui渲染尝试，几周的开发时间，不停的摸索和踩坑，实现了一个框架可以很方便的切换各种渲染方式。
+[测试地址](http://10.254.100.189:8010/)(支持ie8)
 
-
-### react组件渲染的三种方式 [测试地址](http://10.254.100.189:8010/)(支持ie8)
-#### **server端渲染**
-当前mode:
+### demo中react组件渲染的方式有三种，分别是server、client、both
+#### **server**
+当前mode特点:
 
 * 不支持浏览器端事件
 * 不支持生命周期
@@ -24,8 +24,8 @@
 * stateless组件,性能更好
 * 兼容所有低级浏览器,比如ie6,7,8
 
-#### **client端渲染**
-当前mode:
+#### **client**
+当前mode特点:
 
 * 支持浏览器端事件
 * 支持生命周期
@@ -42,8 +42,8 @@
 * 引用polyfill后,也只能兼容最低ie8
 
 
-#### **client和server端都渲染**
-当前mode:
+#### **both**
+当前mode特点:
 
 * 支持浏览器端事件
 * 支持生命周期
@@ -59,6 +59,9 @@
 
 * 代码冗余,bundle里面有已经渲染过的代码
 * 引用polyfill后,也只能兼容最低ie8
+
+#### **auto** 
+这个模式只是之前设想过还没有实现的第四种模式，可以通过判断组件比如是否是stateless，是否有事件，自动使用上面三种模式
 
 	
 **以下会将整个demo的实现一步步介绍给大家。**
@@ -106,8 +109,9 @@
 * 三个preset就不用介绍了，基本是标配
 * react使用了0.14，是为了兼容ie8
 
-### 修改app.js
+### 修改[app.js](https://git.hz.netease.com/zlchen/express-react/blob/master/app.js)
 替换默认的jade引擎，改为react的jsx
+
 ```javascript
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -115,8 +119,9 @@ app.set('view engine', 'jsx');
 app.engine('jsx', require('express-react-views').createEngine({beautify : true}));
 ```
 
-### webpack配置
-因为项目是一个多页面的应用，所以我为了每个页面单独打包一个bundle（这里还可以优化分开react和jsx打包），webpack的entry单独写个函数来实现，为每个页面的jsx自动生成一个entry，来打包成bundle，并约定一个规范所有jsx页面组件放到views/pages下，详细可以查看[demo的webpack配置](https://git.hz.netease.com/zlchen/express-react/blob/master/webpack.config.js)
+### [webpack配置](https://git.hz.netease.com/zlchen/express-react/blob/master/webpack.config.js)
+因为项目是一个多页面的应用，所以我为了每个页面单独打包一个bundle（这里还可以优化分开react和jsx打包），webpack的entry单独写个函数来实现，为每个页面的jsx自动生成一个entry，来打包成bundle，并约定一个规范所有jsx页面组件放到views/pages下。
+
 ```javascript
 function getEntry() {
 	var files = fs.readdirSync(__dirname + '/views/pages');
@@ -143,7 +148,8 @@ function getEntry() {
 ```
 
 ### 数据规范的约定
-为了前后端都可以使用统一套数据，我约定了一个规范，所有业务逻辑相关的数据放在props.data，页面配置放在props.config，路由渲染jsx最终的规范大概是这样：
+为了前后端都可以使用统一套数据，我约定了一个规范，所有业务逻辑相关的数据放在props.data，页面配置放在props.config，[路由](https://git.hz.netease.com/zlchen/express-react/blob/master/routes/index.js)渲染jsx最终的规范大概是这样：
+
 ```javascript
 router.get('/', function(req, res, next) {
   res.render('layout', {
@@ -163,14 +169,17 @@ router.get('/', function(req, res, next) {
 });
 ```
 
-### 以下是layout.jsx的说明
+### 以下是[layout.jsx](https://git.hz.netease.com/zlchen/express-react/blob/master/views/layout.jsx)的说明
 所有的页面都是通过layout作为入口模板渲染，页面的jsx作为子组件在layout
+
 ```javascript
 var {title, data, config, req} = this.props;
 var Child = require('./pages/' + config.entry)
 ```
+
 ...
-```jsx
+
+```js
 
 <div id="app">
   {
@@ -184,7 +193,8 @@ var Child = require('./pages/' + config.entry)
 **以下是根据不同的mode对页面部分内容决定是否返回对应的html**
 
 * client和both需要将data和config是直接在html渲染出来
-```jsx
+
+```js
 {
  (config.mode == 'client' || config.mode == 'both') ?
       <script dangerouslySetInnerHTML={{__html : `
@@ -195,7 +205,8 @@ var Child = require('./pages/' + config.entry)
 }
 ```
 _react_data和_react_config会传到webpack里面生成的entry jsx：
-```jsx
+
+```js
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Index = require('../pages/index.jsx');
@@ -206,7 +217,8 @@ window.IndexComp = ReactDOM.render(<Index
 ```
 
 * server和both需要将页面jsx内容返回
-```jsx
+
+```js
 
 <div id="app">
   {
@@ -216,17 +228,18 @@ window.IndexComp = ReactDOM.render(<Index
 ```
 
 * client和both需要将bundle的script引用加上
-```jsx
+
+```js
 {
   (config.mode == 'client' || config.mode == 'both')
        ? <script src={'/build/' + config.entry + '.bundle.js'}></script> : null
  }
 ```
 
-### 首页jsx的说明
+### [首页jsx](https://git.hz.netease.com/zlchen/express-react/blob/master/views/pages/index.jsx)的说明
 首页的jsx为了测试三种渲染的模式，我分别加了鼠标点击事件、组件生命周期的componentDidMount、state状态改变
 
-```jsx
+```js
 var Index = React.createClass({
 	getInitialState : function() {
 		return {showTips : false}
