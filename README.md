@@ -67,7 +67,7 @@
 **以下会将整个demo的实现一步步介绍给大家。**
 ### 首先创建express
 使用express cli创建express项目模板，并添加react全家桶依赖：react、babel、webpack，并添加一个build script。
-```json
+```js
 {
   "name": "express-react",
   "version": "0.0.0",
