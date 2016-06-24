@@ -67,7 +67,8 @@
 **以下会将整个demo的实现一步步介绍给大家。**
 ### 首先创建express
 使用express cli创建express项目模板，并添加react全家桶依赖：react、babel、webpack，并添加一个build script。
-```js
+
+```json
 {
   "name": "express-react",
   "version": "0.0.0",
@@ -103,6 +104,7 @@
   }
 }
 ```
+
 * [express-react-views](https://github.com/reactjs/express-react-views) 是react写的专门给express渲染jsx用的。
 * 两个es3 transform 是为了兼容ie8。
 * [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) 为了兼容es6 和 es5 
