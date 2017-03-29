@@ -1,10 +1,5 @@
-最近流行前后端的universal/isomorphic，包括ui渲染、router、flux/redux，都可以随心所欲使用同一套代码，想放在浏览器端运行也行，想放到服务器端运行更没问题，听起来很cool。
+这是一个使用react进行ui渲染实现前后端的universal/isomorphic的demo
 
-最近在做一个新项目，就想到可以尝试使用universal的概念，先从ui渲染尝试，几周的开发时间，不停的摸索和踩坑，实现了可以很方便的切换各种渲染方式的机制，本文用一个简单的demo介绍这个机制实现的三种渲染方式。
-
-[本文demo的源码](https://git.hz.netease.com/zlchen/express-react)
-
-[测试地址](http://10.254.100.189:8010/)(支持ie8)
 
 ### demo中react组件渲染的方式有三种，分别是server、client、both
 #### **server**
@@ -111,7 +106,7 @@
 * 三个preset就不用介绍了，基本是标配
 * react使用了0.14，是为了兼容ie8
 
-### 修改[app.js](https://git.hz.netease.com/zlchen/express-react/blob/master/app.js)
+### app.js
 替换默认的jade引擎，改为react的jsx
 
 ```javascript
@@ -121,7 +116,7 @@ app.set('view engine', 'jsx');
 app.engine('jsx', require('express-react-views').createEngine({beautify : true}));
 ```
 
-### [webpack配置](https://git.hz.netease.com/zlchen/express-react/blob/master/webpack.config.js)
+### webpack配置
 因为项目是一个多页面的应用，所以我为了每个页面单独打包一个bundle（这里还可以优化分开react和jsx打包），webpack的entry单独写个函数来实现，为每个页面的jsx自动生成一个entry，来打包成bundle，并约定一个规范所有jsx页面组件放到views/pages下。
 
 ```javascript
@@ -150,7 +145,7 @@ function getEntry() {
 ```
 
 ### 数据规范的约定
-为了前后端都可以使用统一套数据，我约定了一个规范，所有业务逻辑相关的数据放在props.data，页面配置放在props.config，[路由](https://git.hz.netease.com/zlchen/express-react/blob/master/routes/index.js)渲染jsx最终的规范大概是这样：
+为了前后端都可以使用统一套数据，我约定了一个规范，所有业务逻辑相关的数据放在props.data，页面配置放在props.config，路由渲染jsx最终的规范大概是这样：
 
 ```javascript
 router.get('/', function(req, res, next) {
@@ -171,7 +166,7 @@ router.get('/', function(req, res, next) {
 });
 ```
 
-### 以下是[layout.jsx](https://git.hz.netease.com/zlchen/express-react/blob/master/views/layout.jsx)的说明
+### 以下是layout.jsx的说明
 所有的页面都是通过layout作为入口模板渲染，页面的jsx作为子组件在layout
 
 ```javascript
@@ -238,7 +233,7 @@ window.IndexComp = ReactDOM.render(<Index
  }
 ```
 
-### [首页jsx](https://git.hz.netease.com/zlchen/express-react/blob/master/views/pages/index.jsx)的说明
+### 首页jsx 的说明
 首页的jsx为了测试三种渲染的模式，我分别加了鼠标点击事件、组件生命周期的componentDidMount、state状态改变
 
 ```js
