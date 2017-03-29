@@ -266,7 +266,7 @@ var Index = React.createClass({
 });
 ```
 ### demo使用
-* `git clone https://git.hz.netease.com/zlchen/express-react`
+* `git clone https://github.com/hcnode/react-view-render-universal-demo`
 * `cd express-react`
 * `npm install`
 * `npm start`
